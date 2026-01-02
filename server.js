@@ -11,6 +11,10 @@ const TOPIC = crypto.createHash("sha256").update(TOPIC_NAME).digest();
 
 // Gossip protocol tuning
 const GOSSIP_FANOUT = 3; // Relay to max 3 random peers instead of all
+const HEARTBEAT_INTERVAL_FAST = 1000; // 1 second during startup
+const HEARTBEAT_INTERVAL_SLOW = 15000; // 15 seconds at steady state
+const STARTUP_DURATION = 120000; // Stay in fast mode for 2 minutes
+const PEER_STALE_TIMEOUT = 90000; // 90 seconds before peer considered stale
 
 // --- BLOOM FILTER FOR MESSAGE DEDUPLICATION ---
 // Simple bloom filter to prevent re-relaying messages we've already seen
@@ -206,6 +210,9 @@ function broadcastUpdate() {
 const swarm = new Hyperswarm();
 
 swarm.on("connection", (socket) => {
+  // Start adaptive heartbeat on first connection
+  startHeartbeatIfNeeded();
+  
   const sig = crypto
     .sign(null, Buffer.from(`seq:${mySeq}`), privateKey)
     .toString("hex");
@@ -357,8 +364,18 @@ function relayMessage(msg, sourceSocket) {
   }
 }
 
-// Periodic Heartbeat
-setInterval(() => {
+// Adaptive Heartbeat - fast at startup, slows down after STARTUP_DURATION
+// Timer starts when first connection is established, not at process start
+let heartbeatStartTime = null;
+let heartbeatStarted = false;
+
+function getHeartbeatInterval() {
+  if (!heartbeatStartTime) return HEARTBEAT_INTERVAL_FAST;
+  const elapsed = Date.now() - heartbeatStartTime;
+  return elapsed < STARTUP_DURATION ? HEARTBEAT_INTERVAL_FAST : HEARTBEAT_INTERVAL_SLOW;
+}
+
+function sendHeartbeat() {
   mySeq++;
 
   seenPeers.set(MY_ID, { seq: mySeq, lastSeen: Date.now() });
@@ -382,14 +399,27 @@ setInterval(() => {
   const now = Date.now();
   let changed = false;
   for (const [id, data] of seenPeers) {
-    if (now - data.lastSeen > 15000) {
+    if (now - data.lastSeen > PEER_STALE_TIMEOUT) {
       seenPeers.delete(id);
       changed = true;
     }
   }
 
   if (changed) broadcastUpdate();
-}, 5000);
+  
+  // Schedule next heartbeat with adaptive interval
+  setTimeout(sendHeartbeat, getHeartbeatInterval());
+}
+
+// Start heartbeat loop on first connection
+function startHeartbeatIfNeeded() {
+  if (!heartbeatStarted) {
+    heartbeatStarted = true;
+    heartbeatStartTime = Date.now();
+    console.log("[P2P] First connection established, starting fast heartbeat...");
+    sendHeartbeat();
+  }
+}
 
 // Graceful Shutdown
 function handleShutdown() {
