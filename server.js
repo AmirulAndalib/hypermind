@@ -448,6 +448,7 @@ app.get("/", (req, res) => {
         <html>
         <head>
             <title>Hypermind</title>
+            <link rel="icon" type="image/svg+xml" href="/favicon.svg">
             <meta name="viewport" content="width=device-width, initial-scale=1">
             <style>
                 body { 
@@ -607,6 +608,10 @@ app.get("/", (req, res) => {
 });
 
 // SSE Endpoint
+app.get("/favicon.svg", (req, res) => {
+  res.sendFile(__dirname + "/hypermind2.svg");
+});
+
 app.get("/events", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
