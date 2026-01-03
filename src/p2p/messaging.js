@@ -47,13 +47,11 @@ class MessageHandler {
         if (!sig) return;
 
         try {
-            let key;
-            if (stored && stored.key) {
-                key = stored.key;
-            } else {
-                if (!this.peerManager.canAcceptPeer(id)) return;
-                key = createPublicKey(id);
-            }
+            // Check if we can accept new peers (only matters for new peers)
+            if (!stored && !this.peerManager.canAcceptPeer(id)) return;
+
+            // Derive public key on-demand from peer ID
+            const key = createPublicKey(id);
 
             if (!verifySignature(`seq:${seq}`, sig, key)) {
                 this.diagnostics.increment("invalidSig");
@@ -64,7 +62,7 @@ class MessageHandler {
                 sourceSocket.peerId = id;
             }
 
-            const wasNew = this.peerManager.addOrUpdatePeer(id, seq, key);
+            const wasNew = this.peerManager.addOrUpdatePeer(id, seq);
 
             if (wasNew) {
                 this.diagnostics.increment("newPeersAdded");
@@ -95,10 +93,13 @@ class MessageHandler {
 
         if (!sig) return;
 
-        const stored = this.peerManager.getPeer(id);
-        if (!stored || !stored.key) return;
+        // Only process leave messages for peers we know about
+        if (!this.peerManager.hasPeer(id)) return;
 
-        if (!verifySignature(`type:LEAVE:${id}`, sig, stored.key)) {
+        // Derive public key on-demand from peer ID
+        const key = createPublicKey(id);
+
+        if (!verifySignature(`type:LEAVE:${id}`, sig, key)) {
             this.diagnostics.increment("invalidSig");
             return;
         }

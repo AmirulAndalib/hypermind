@@ -33,6 +33,7 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
 
         const data = JSON.stringify({
             count: peerManager.size,
+            totalUnique: peerManager.totalUniquePeers,
             direct: swarm.getSwarm().connections.size,
             id: identity.id,
             diagnostics: diagnostics.getStats(),
@@ -48,6 +49,7 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
     app.get("/api/stats", (req, res) => {
         res.json({
             count: peerManager.size,
+            totalUnique: peerManager.totalUniquePeers,
             direct: swarm.getSwarm().connections.size,
             id: identity.id,
             diagnostics: diagnostics.getStats(),
