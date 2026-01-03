@@ -6,3 +6,4 @@ services:
     restart: unless-stopped
     environment:
       - PORT=3000
+      - MAX_PEERS=10000
