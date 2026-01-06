@@ -1,6 +1,8 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const { signMessage } = require("../core/security");
 const { ENABLE_CHAT, CHAT_RATE_LIMIT } = require("../config/constants");
 
 const HTML_TEMPLATE = fs.readFileSync(
@@ -76,17 +78,33 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
         
         chatHistory.push(now);
 
-        const { content } = req.body;
+        const { content, scope = 'LOCAL' } = req.body;
         if (!content || typeof content !== 'string' || content.length > 140) {
             return res.status(400).json({ error: "Invalid content" });
         }
+        
+        if (scope !== 'LOCAL' && scope !== 'GLOBAL') {
+             return res.status(400).json({ error: "Invalid scope" });
+        }
+
+        const timestamp = Date.now();
+        // Create a unique ID that depends on content to prevent replay/duplicates
+        const idBase = identity.id + content + timestamp;
+        const msgId = crypto.createHash('sha256').update(idBase).digest('hex');
 
         const msg = {
             type: "CHAT",
+            id: msgId,
             sender: identity.id,
             content: content,
-            timestamp: Date.now()
+            timestamp: timestamp,
+            scope: scope,
+            hops: 0
         };
+
+        if (scope === 'GLOBAL') {
+             msg.sig = signMessage(`chat:${msgId}`, identity.privateKey);
+        }
 
         swarm.broadcastChat(msg);
         sseManager.broadcast(msg);

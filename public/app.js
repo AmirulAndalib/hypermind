@@ -243,11 +243,13 @@ const updateMap = async (peers) => {
 
 const terminal = document.getElementById('terminal');
 const terminalOutput = document.getElementById('terminal-output');
+const systemStatusBar = document.getElementById('system-status-bar');
 const terminalInput = document.getElementById('terminal-input');
 const terminalToggle = document.getElementById('terminal-toggle');
 const promptEl = document.querySelector('.prompt');
 let myId = null;
 let myChatHistory = [];
+let globalChatEnabled = true;
 
 terminalToggle.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -313,17 +315,15 @@ const getColorFromId = (id) => {
 const appendMessage = (msg) => {
     const div = document.createElement('div');
     
-    if (msg.type === 'SYSTEM') {
-        div.className = 'msg-system';
-        div.innerText = `[SYSTEM] ${msg.content}`;
-    } else if (msg.type === 'CHAT') {
+    if (msg.type === 'CHAT') {
         const senderColor = getColorFromId(msg.sender);
         const senderName = msg.sender === myId ? 'You' : msg.sender.slice(-4);
+        const scopeLabel = msg.scope === 'GLOBAL' ? '[GLOBAL] ' : '';
         
         const senderSpan = document.createElement('span');
         senderSpan.className = 'msg-sender';
         senderSpan.style.color = senderColor;
-        senderSpan.innerText = `[${senderName}]`;
+        senderSpan.innerText = `${scopeLabel}[${senderName}]`;
         
         const contentSpan = document.createElement('span');
         contentSpan.className = 'msg-content';
@@ -339,16 +339,35 @@ const appendMessage = (msg) => {
 
 terminalInput.addEventListener('keypress', async (e) => {
     if (e.key === 'Enter') {
-        const content = terminalInput.value.trim();
+        let content = terminalInput.value.trim();
         if (!content) return;
         
         terminalInput.value = '';
+
+        if (content === '/global on') {
+            globalChatEnabled = true;
+            systemStatusBar.innerText = `[SYSTEM] Global chat messages enabled.`;
+            return;
+        }
+
+        if (content === '/global off') {
+            globalChatEnabled = false;
+            systemStatusBar.innerText = `[SYSTEM] Global chat messages disabled.`;
+            return;
+        }
+
+        let scope = 'LOCAL';
+        if (content.startsWith('/global ')) {
+            scope = 'GLOBAL';
+            content = content.replace(/^\/global\s+/, '').trim();
+            if (!content) return;
+        }
         
         try {
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content })
+                body: JSON.stringify({ content, scope })
             });
 
             if (res.ok) {
@@ -373,7 +392,15 @@ const evtSource = new EventSource("/events");
 evtSource.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
-    if (data.type === 'CHAT' || data.type === 'SYSTEM') {
+    if (data.type === 'SYSTEM') {
+        systemStatusBar.innerText = `[SYSTEM] ${data.content}`;
+        return;
+    }
+
+    if (data.type === 'CHAT') {
+        if (data.scope === 'GLOBAL' && !globalChatEnabled) {
+            return;
+        }
         appendMessage(data);
         return;
     }

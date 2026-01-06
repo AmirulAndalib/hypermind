@@ -133,14 +133,11 @@ class MessageHandler {
     }
 
     handleChat(msg, sourceSocket) {
-        // Identity Verification: Ensure the sender matches the authenticated socket
-        if (!sourceSocket.peerId || sourceSocket.peerId !== msg.sender) {
-            return;
-        }
+        const { scope, sender, id, sig, hops } = msg;
 
-        // Rate Limiting: Prevent flooding (5 messages per 10 seconds per peer)
+        // Rate Limiting (apply to all chat messages)
         const now = Date.now();
-        let rateData = this.chatRateLimits.get(msg.sender);
+        let rateData = this.chatRateLimits.get(sender);
         
         if (!rateData || now - rateData.windowStart > 10000) {
             // Reset window
@@ -151,11 +148,45 @@ class MessageHandler {
             return; // Drop message
         }
 
-        rateData.count++;
-        this.chatRateLimits.set(msg.sender, rateData);
+        if (!scope || scope === 'LOCAL') {
+            // Identity Verification: Ensure the sender matches the authenticated socket
+            if (!sourceSocket.peerId || sourceSocket.peerId !== sender) {
+                return;
+            }
 
-        if (this.chatCallback) {
-            this.chatCallback(msg);
+            rateData.count++;
+            this.chatRateLimits.set(sender, rateData);
+    
+            if (this.chatCallback) {
+                this.chatCallback(msg);
+            }
+        } else if (scope === 'GLOBAL') {
+            if (!sig || !id) return;
+
+            // Check signature
+            const key = createPublicKey(sender);
+            if (!verifySignature(`chat:${id}`, sig, key)) {
+                this.diagnostics.increment("invalidSig");
+                return;
+            }
+
+            // Deduplication
+            if (this.bloomFilter.hasRelayed(id, "chat")) {
+                return;
+            }
+            this.bloomFilter.markRelayed(id, "chat");
+
+            rateData.count++;
+            this.chatRateLimits.set(sender, rateData);
+
+            if (this.chatCallback) {
+                this.chatCallback(msg);
+            }
+
+            // Relay
+            if (hops < MAX_RELAY_HOPS) {
+                this.relayCallback({ ...msg, hops: hops + 1 }, sourceSocket);
+            }
         }
     }
 }
@@ -183,7 +214,7 @@ const validateMessage = (msg) => {
     }
 
     if (msg.type === "CHAT") {
-        const allowedFields = ['type', 'sender', 'content', 'timestamp'];
+        const allowedFields = ['type', 'sender', 'content', 'timestamp', 'scope', 'id', 'sig', 'hops'];
         const fields = Object.keys(msg);
         return fields.every(f => allowedFields.includes(f)) &&
             msg.sender && 

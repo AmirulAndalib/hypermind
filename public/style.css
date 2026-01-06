@@ -28,26 +28,16 @@ body.chat-collapsed {
 .footer { 
     margin: 2rem auto 0;
     font-size: 0.9rem; 
-    color: #4b5563; 
-    background: rgba(0, 0, 0, 0.6);
-    padding: 2px 8px;
-    border-radius: 4px;
-    display: block;
-    width: fit-content;
+    color: #9ca3af; 
 }
 .debug { 
     font-size: 0.8rem; 
-    color: #4b5563; 
+    color: #9ca3af; 
     margin: 1rem auto 0;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 5px 10px;
-    border-radius: 4px;
-    display: block;
-    width: fit-content;
 }
-.debug-link { color: #4b5563; border-bottom: 1px dotted #4b5563; cursor: pointer; }
-.debug-link:hover { color: #9ca3af; }
-a { color: #4b5563; text-decoration: none; border-bottom: 1px dotted #4b5563; }
+.debug-link { color: #9ca3af; border-bottom: 1px dotted #9ca3af; cursor: pointer; }
+.debug-link:hover { color: #e5e7eb; }
+a { color: #9ca3af; text-decoration: none; border-bottom: 1px dotted #9ca3af; }
 
 .pulse { animation: pulse 0.5s ease-in-out; }
 @keyframes pulse {
@@ -189,6 +179,17 @@ a { color: #4b5563; text-decoration: none; border-bottom: 1px dotted #4b5563; }
 .terminal-toggle:hover {
     color: #fff;
     background: #222;
+}
+
+.system-status-bar {
+    height: 20px;
+    margin-bottom: 5px;
+    color: #666;
+    font-style: italic;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 
 .terminal-output {
