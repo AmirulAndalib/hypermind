@@ -1,6 +1,6 @@
 {
   "name": "hypermind",
-  "version": "1.0.0",
+  "version": "0.9.9",
   "description": "A decentralized P2P counter of active deployments",
   "main": "server.js",
   "scripts": {
@@ -26,6 +26,7 @@
   "homepage": "https://github.com/lklynet/hypermind#readme",
   "type": "commonjs",
   "dependencies": {
+    "adm-zip": "^0.5.16",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "hyperswarm": "^4.16.0"

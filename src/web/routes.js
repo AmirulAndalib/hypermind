@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const { ENABLE_CHAT, CHAT_RATE_LIMIT } = require("../config/constants");
+const updater = require("../core/updater");
 
 const HTML_TEMPLATE = fs.readFileSync(
     path.join(__dirname, "../../public/index.html"),
@@ -92,6 +93,42 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
         sseManager.broadcast(msg);
 
         res.json({ success: true });
+    });
+
+    // Update System
+    app.get("/api/update/check", async (req, res) => {
+        try {
+            const status = await updater.check();
+            res.json(status);
+        } catch (error) {
+            console.error("Update check failed:", error);
+            res.status(500).json({ error: "Failed to check for updates" });
+        }
+    });
+
+    app.get("/api/update/notes", async (req, res) => {
+        try {
+            const notes = await updater.getRemoteNotes();
+            res.json(notes);
+        } catch (error) {
+            console.error("Notes fetch failed:", error);
+            res.status(500).json({ error: "Failed to fetch release notes" });
+        }
+    });
+
+    app.post("/api/update/trigger", async (req, res) => {
+        try {
+            // Trigger internal update
+            // We don't await this because it restarts the process
+            updater.update().catch(err => {
+                console.error("Update process failed:", err);
+            });
+
+            res.json({ success: true, message: "Update started" });
+        } catch (error) {
+            console.error("Update trigger failed:", error);
+            res.status(500).json({ error: "Failed to start update" });
+        }
     });
 
     app.use(express.static(path.join(__dirname, "../../public")));
