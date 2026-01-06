@@ -8,7 +8,7 @@ const { relayMessage } = require("./src/p2p/relay");
 const { SwarmManager } = require("./src/p2p/swarm");
 const { SSEManager } = require("./src/web/sse");
 const { createServer, startServer } = require("./src/web/server");
-const { DIAGNOSTICS_INTERVAL, ENABLE_CHAT } = require("./src/config/constants");
+const { DIAGNOSTICS_INTERVAL, ENABLE_CHAT, ENABLE_MAP } = require("./src/config/constants");
 
 const main = async () => {
   const identity = generateIdentity();
@@ -26,6 +26,7 @@ const main = async () => {
       id: identity.id,
       diagnostics: diagnostics.getStats(),
       chatEnabled: ENABLE_CHAT,
+      mapEnabled: ENABLE_MAP,
       peers: peerManager.getPeersWithIps()
     });
   };

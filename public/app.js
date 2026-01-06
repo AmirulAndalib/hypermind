@@ -38,7 +38,8 @@ class Particle {
 }
 
 const updateParticles = (count) => {
-    const VISUAL_LIMIT = 500;
+    const limitAttr = canvas.getAttribute('data-visual-limit');
+    const VISUAL_LIMIT = limitAttr ? parseInt(limitAttr) : 500;
     const visualCount = Math.min(count, VISUAL_LIMIT);
 
     const currentCount = particles.length;
@@ -245,6 +246,7 @@ const terminal = document.getElementById('terminal');
 const terminalOutput = document.getElementById('terminal-output');
 const terminalInput = document.getElementById('terminal-input');
 const terminalToggle = document.getElementById('terminal-toggle');
+const mapContainer = document.getElementById('map-container');
 const promptEl = document.querySelector('.prompt');
 let myId = null;
 let myChatHistory = [];
@@ -392,6 +394,15 @@ evtSource.onmessage = (event) => {
         document.body.classList.remove('chat-collapsed');
     }
     
+    if (data.mapEnabled) {
+        if (mapContainer) mapContainer.style.display = 'inline';
+    } else {
+        if (mapContainer) mapContainer.style.display = 'none';
+        if (document.getElementById('mapModal').classList.contains('active')) {
+            closeMap();
+        }
+    }
+
     if (data.id) myId = data.id;
 
     if (data.peers) {

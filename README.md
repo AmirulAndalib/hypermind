@@ -81,6 +81,33 @@ kubectl expose deployment hypermind --type=LoadBalancer --port=3000 --target-por
 
 ```
 
+## » Configuration
+
+You can customize Hypermind's behavior using environment variables.
+
+### Extras
+These features are disabled by default. Set them to `true` to enable.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ENABLE_CHAT` | `false` | Enables the decentralized chat system. |
+| `ENABLE_MAP` | `false` | Enables map visualization features. |
+
+### Refinement
+Tune the network parameters to fit your system resources. The defaults are safe for most users. Don't change unless you know what you're doing.
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MAX_PEERS` | `50000` | Maximum number of peers to track in memory. |
+| `MAX_MESSAGE_SIZE` | `2048` | Maximum size of a single message in bytes. |
+| `MAX_RELAY_HOPS` | `2` | Maximum number of times a message is relayed. |
+| `MAX_CONNECTIONS` | `32` | Maximum number of active P2P connections. |
+| `HEARTBEAT_INTERVAL` | `5000` | How often (ms) to send heartbeat messages. |
+| `CONNECTION_ROTATION_INTERVAL` | `30000` | How often (ms) to rotate connections. |
+| `PEER_TIMEOUT` | `15000` | Time (ms) before a silent peer is considered offline. |
+| `CHAT_RATE_LIMIT` | `5000` | Time window (ms) for chat rate limiting. |
+| `VISUAL_LIMIT` | `500` | Max number of particles to render on the dashboard. |
+
 ## » Ecosystem & Integrations
 
 The community has bravely stepped up to integrate Hypermind into critical monitoring infrastructure.

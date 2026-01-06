@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <canvas id="network"></canvas>
+    <canvas id="network" data-visual-limit="{{VISUAL_LIMIT}}"></canvas>
     <div class="container">
         <div id="count" class="count" data-initial-count="{{COUNT}}">{{COUNT}}</div>
         <div class="label">Active Nodes</div>
@@ -19,8 +19,8 @@
         <div class="debug">
             ID: {{ID}}<br>
             Direct Connections: <span id="direct">{{DIRECT}}</span><br>
-            <span class="debug-link" onclick="openDiagnostics()">diagnostics</span> | 
-            <span class="debug-link" onclick="openMap()">map</span>
+            <span class="debug-link" onclick="openDiagnostics()">diagnostics</span>
+            <span id="map-container" class="{{MAP_CLASS}}"> | <span class="debug-link" id="map-link" onclick="openMap()">map</span></span>
         </div>
     </div>
 

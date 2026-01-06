@@ -1,7 +1,7 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
-const { ENABLE_CHAT, CHAT_RATE_LIMIT } = require("../config/constants");
+const { ENABLE_CHAT, ENABLE_MAP, CHAT_RATE_LIMIT, VISUAL_LIMIT } = require("../config/constants");
 
 const HTML_TEMPLATE = fs.readFileSync(
     path.join(__dirname, "../../public/index.html"),
@@ -18,7 +18,9 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
         const html = HTML_TEMPLATE
             .replace(/\{\{COUNT\}\}/g, count)
             .replace(/\{\{ID\}\}/g, "..." + identity.id.slice(-8))
-            .replace(/\{\{DIRECT\}\}/g, directPeers);
+            .replace(/\{\{DIRECT\}\}/g, directPeers)
+            .replace(/\{\{MAP_CLASS\}\}/g, ENABLE_MAP ? '' : 'hidden')
+            .replace(/\{\{VISUAL_LIMIT\}\}/g, VISUAL_LIMIT);
 
         res.send(html);
     });
@@ -67,11 +69,11 @@ const setupRoutes = (app, identity, peerManager, swarm, sseManager, diagnostics)
         }
 
         const now = Date.now();
-        // Clean up old timestamps (older than 10 seconds)
-        chatHistory = chatHistory.filter(time => now - time < 10000);
+        // Clean up old timestamps (older than CHAT_RATE_LIMIT)
+        chatHistory = chatHistory.filter(time => now - time < CHAT_RATE_LIMIT);
 
         if (chatHistory.length >= 5) {
-            return res.status(429).json({ error: "Rate limit exceeded: Max 5 messages per 10 seconds" });
+            return res.status(429).json({ error: `Rate limit exceeded: Max 5 messages per ${CHAT_RATE_LIMIT / 1000} seconds` });
         }
         
         chatHistory.push(now);

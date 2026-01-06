@@ -17,18 +17,20 @@ const MY_POW_PREFIX = "00000";
 const VERIFICATION_POW_PREFIX = "0000";
 
 const MAX_PEERS = parseInt(process.env.MAX_PEERS) || 50000;
-const MAX_MESSAGE_SIZE = 2048;
-const MAX_RELAY_HOPS = 2;
-const MAX_CONNECTIONS = 15;
+const MAX_MESSAGE_SIZE = parseInt(process.env.MAX_MESSAGE_SIZE) || 2048;
+const MAX_RELAY_HOPS = parseInt(process.env.MAX_RELAY_HOPS) || 2;
+const MAX_CONNECTIONS = parseInt(process.env.MAX_CONNECTIONS) || 15;
 
-const HEARTBEAT_INTERVAL = 30000;
-const CONNECTION_ROTATION_INTERVAL = 300000;
-const PEER_TIMEOUT = 45000;
+const HEARTBEAT_INTERVAL = parseInt(process.env.HEARTBEAT_INTERVAL) || 30000;
+const CONNECTION_ROTATION_INTERVAL = parseInt(process.env.CONNECTION_ROTATION_INTERVAL) || 300000;
+const PEER_TIMEOUT = parseInt(process.env.PEER_TIMEOUT) || 45000;
 const BROADCAST_THROTTLE = 1000;
 const DIAGNOSTICS_INTERVAL = 10000;
 const PORT = process.env.PORT || 3000;
 const ENABLE_CHAT = process.env.ENABLE_CHAT === "true";
-const CHAT_RATE_LIMIT = 5000;
+const ENABLE_MAP = process.env.ENABLE_MAP === 'true';
+const CHAT_RATE_LIMIT = parseInt(process.env.CHAT_RATE_LIMIT) || 5000;
+const VISUAL_LIMIT = parseInt(process.env.VISUAL_LIMIT) || 500;
 
 module.exports = {
   TOPIC_NAME,
@@ -46,5 +48,7 @@ module.exports = {
   DIAGNOSTICS_INTERVAL,
   PORT,
   ENABLE_CHAT,
+  ENABLE_MAP,
   CHAT_RATE_LIMIT,
+  VISUAL_LIMIT,
 };
