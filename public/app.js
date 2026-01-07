@@ -503,30 +503,51 @@ const themes = [
 
 let currentThemeIndex = 0;
 
-function loadSavedTheme() {
-    const savedTheme = localStorage.getItem('hypermind-theme');
-    if (savedTheme) {
-        const themeLink = document.getElementById('theme-css');
-        themeLink.href = `/themes/${savedTheme}`;
-        currentThemeIndex = themes.indexOf(savedTheme);
-        if (currentThemeIndex === -1) currentThemeIndex = 0;
-    } else {
-        const themeLink = document.getElementById('theme-css');
-        const currentTheme = themeLink.href.split('/').pop();
-        currentThemeIndex = themes.indexOf(currentTheme);
-        if (currentThemeIndex === -1) currentThemeIndex = 0;
-    }
+// Initialize currentThemeIndex based on the theme loaded by index.html
+const currentThemeLink = document.getElementById('theme-css');
+if (currentThemeLink) {
+    const currentThemeName = currentThemeLink.href.split('/').pop();
+    currentThemeIndex = themes.indexOf(currentThemeName);
+    if (currentThemeIndex === -1) currentThemeIndex = 0;
 }
 
 function cycleTheme() {
+    const btn = document.getElementById('theme-switcher');
+    if (btn.disabled) return;
+    
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+
     currentThemeIndex = (currentThemeIndex + 1) % themes.length;
     const newTheme = themes[currentThemeIndex];
-    const themeLink = document.getElementById('theme-css');
-    themeLink.href = `/themes/${newTheme}`;
-    localStorage.setItem('hypermind-theme', newTheme);
+    const oldLink = document.getElementById('theme-css');
+    
+    const newLink = document.createElement('link');
+    newLink.rel = 'stylesheet';
+    newLink.href = `/themes/${newTheme}`;
+    
+    newLink.onload = () => {
+        if (oldLink) oldLink.remove();
+        newLink.id = 'theme-css';
+        localStorage.setItem('hypermind-theme', newTheme);
+        btn.disabled = false;
+        btn.style.opacity = '';
+    };
+
+    newLink.onerror = () => {
+        console.error('Failed to load theme:', newTheme);
+        newLink.remove();
+        btn.disabled = false;
+        btn.style.opacity = '';
+        currentThemeIndex = (currentThemeIndex - 1 + themes.length) % themes.length;
+    };
+    
+    if (oldLink && oldLink.parentNode) {
+        oldLink.parentNode.insertBefore(newLink, oldLink.nextSibling);
+    } else {
+        document.head.appendChild(newLink);
+    }
 }
 
 document.getElementById('theme-switcher').addEventListener('click', cycleTheme);
-
-loadSavedTheme();
 
