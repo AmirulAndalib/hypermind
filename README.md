@@ -92,6 +92,7 @@ These features are disabled by default. Set them to `true` to enable.
 |----------|---------|-------------|
 | `ENABLE_CHAT` | `false` | Enables the decentralized chat system. |
 | `ENABLE_MAP` | `false` | Enables map visualization features. |
+| `ENABLE_THEMES` | `true` | Controls the theme switcher function ([THEMES.md](THEMES.md))
 
 ### Refinement
 Tune the network parameters to fit your system resources. The defaults are safe for most users. Don't change unless you know what you're doing.
