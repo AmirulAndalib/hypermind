@@ -1,5 +1,6 @@
 const countEl = document.getElementById("count");
 const directEl = document.getElementById("direct");
+const totalUniqueEl = document.getElementById("total-unique");
 const canvas = document.getElementById("network");
 const ctx = canvas.getContext("2d");
 let particles = [];
@@ -696,6 +697,7 @@ evtSource.onmessage = (event) => {
   }
 
   directEl.innerText = data.direct;
+  if (totalUniqueEl) totalUniqueEl.innerText = data.totalUnique;
 
   if (data.diagnostics) {
     const d = data.diagnostics;

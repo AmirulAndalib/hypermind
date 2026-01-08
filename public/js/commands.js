@@ -54,7 +54,7 @@ const ChatCommands = {
           { cmd: "/unblock &lt;user&gt;", desc: "Unblock a user" },
           {
             cmd: "/local &lt;msg&gt;",
-            desc: "Send message to direct peers only",
+            desc: "Send message to direct peers only (Global by default)",
           },
           { cmd: "/clear", desc: "Clear chat history" },
           { cmd: "/help", desc: "Show this help menu" },
