@@ -1,4 +1,4 @@
-const { ENABLE_MAP, ENABLE_THEMES, VISUAL_LIMIT } = require("../../config/constants");
+const { ENABLE_MAP, ENABLE_THEMES, VISUAL_LIMIT, VERSION } = require("../../config/constants");
 
 const setupPageRoutes = (router, dependencies) => {
     const { htmlTemplate, identity, peerManager, swarm } = dependencies;
@@ -16,7 +16,8 @@ const setupPageRoutes = (router, dependencies) => {
             .replace(/\{\{TOTAL_UNIQUE\}\}/g, totalUnique)
             .replace(/\{\{MAP_CLASS\}\}/g, ENABLE_MAP ? "" : "hidden")
             .replace(/\{\{THEMES_CLASS\}\}/g, ENABLE_THEMES ? "" : "hidden")
-            .replace(/\{\{VISUAL_LIMIT\}\}/g, VISUAL_LIMIT);
+            .replace(/\{\{VISUAL_LIMIT\}\}/g, VISUAL_LIMIT)
+            .replace(/\{\{VERSION\}\}/g, VERSION);
 
         res.send(html);
     });

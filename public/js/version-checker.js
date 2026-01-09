@@ -1,6 +1,9 @@
 const CACHE_KEY = "hypermind-version-check";
 const CACHE_DURATION = 86400000;
-const CURRENT_VERSION = "1.0.0";
+
+const getCurrentVersion = () => {
+    return document.body.dataset.version || "no-version";
+};
 
 const checkForNewVersion = async () => {
     try {
@@ -42,7 +45,7 @@ const showVersionNotification = (release) => {
     if (!release || !release.tag_name) return;
 
     const latestVersion = release.tag_name.replace(/^v/, "");
-    const currentVersion = CURRENT_VERSION;
+    const currentVersion = getCurrentVersion();
 
     if (latestVersion === currentVersion) return;
 

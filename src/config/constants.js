@@ -47,10 +47,14 @@ const GENERATOR_LOGIC = fs.readFileSync(
   "utf-8"
 );
 
-const GITHUB_REPO = {
-  owner: "lklynet",
-  name: "hypermind",
-};
+const packageJson = require("../../package.json");
+const repoUrl = packageJson.repository?.url || "";
+const repoMatch = repoUrl.match(/github\.com\/([^\/]+)\/([^\/\.]+)/);
+const GITHUB_REPO = repoMatch
+  ? { owner: repoMatch[1], name: repoMatch[2] }
+  : { owner: "lklynet|test", name: "hypermind|test" };
+
+const VERSION = packageJson.version || "no-version";
 
 module.exports = {
   TOPIC_NAME,
@@ -77,4 +81,5 @@ module.exports = {
   NOUNS,
   GENERATOR_LOGIC,
   GITHUB_REPO,
+  VERSION,
 };
