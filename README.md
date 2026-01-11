@@ -1,5 +1,5 @@
 <div align="center">
-<img src="hypermind2.svg" width="150" alt="Hypermind Logo" />
+<img src="hypernode.svg" width="150" alt="Hypermind Logo" />
 <h1>Hypermind</h1>
 </div>
 

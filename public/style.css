@@ -282,6 +282,8 @@ a { color: var(--color-text-anchor-link); text-decoration: none; border-bottom: 
     gap: 2px;
     scrollbar-width: thin;
     scrollbar-color: var(--color-terminal-scrollbar) transparent;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .terminal-output::-webkit-scrollbar {
@@ -336,6 +338,8 @@ a { color: var(--color-text-anchor-link); text-decoration: none; border-bottom: 
 
 .msg-content {
     color: var(--color-terminal-output-message);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .timestamp {
