@@ -58,7 +58,17 @@
         'volcano.css',
         'catppuccin-mocha.css',
         'catppuccin-latte.css',
-        'new-theme.css' // always add to the end of the list
+"hypermind.css",
+"hypermind-classic.css",
+"tokyo-night.css",
+"nord-dark.css",
+"solarized-light.css",
+"volcano.css",
+"catppuccin-mocha.css",
+"catppuccin-latte.css",
+"dracula.css",
+"dracula-light.css",
+"new-theme.css" // always add to the end of the list
     ];
    ```
 4. Change the colors as you desire. Reference [`index.html`](public/index.html) and [`style.css`](public/style.css) as needed.
