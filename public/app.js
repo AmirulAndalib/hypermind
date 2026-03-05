@@ -4,12 +4,19 @@ const totalUniqueEl = document.getElementById("total-unique");
 const canvas = document.getElementById("network");
 const ctx = canvas.getContext("2d");
 let particles = [];
+let particleColor = "#4ade80";
+let particleLinkColor = "#22d3ee";
 
 function getThemeColor(varName) {
   return getComputedStyle(document.documentElement)
     .getPropertyValue(varName)
     .trim();
 }
+
+const refreshThemeColors = () => {
+  particleColor = getThemeColor("--color-particle");
+  particleLinkColor = getThemeColor("--color-particle-link");
+};
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -39,7 +46,7 @@ class Particle {
   draw() {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = getThemeColor("--color-particle");
+    ctx.fillStyle = particleColor;
     ctx.fill();
   }
 }
@@ -62,15 +69,15 @@ const updateParticles = (count) => {
 const animate = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.strokeStyle = getThemeColor("--color-particle-link");
+  ctx.strokeStyle = particleLinkColor;
   ctx.lineWidth = 1;
   for (let i = 0; i < particles.length; i++) {
     for (let j = i + 1; j < particles.length; j++) {
       const dx = particles[i].x - particles[j].x;
       const dy = particles[i].y - particles[j].y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
+      const distanceSquared = dx * dx + dy * dy;
 
-      if (distance < 150) {
+      if (distanceSquared < 22500) {
         ctx.beginPath();
         ctx.moveTo(particles[i].x, particles[i].y);
         ctx.lineTo(particles[j].x, particles[j].y);
@@ -473,6 +480,17 @@ const getColorFromId = (id) => {
 const seenMessageIds = new Set();
 const messageIdHistory = [];
 
+const appendSystemLines = (lines) => {
+  const entries = Array.isArray(lines) ? lines : [lines];
+  for (const line of entries) {
+    const div = document.createElement("div");
+    div.className = "system-message";
+    div.innerText = `[SYSTEM] ${line}`;
+    terminalOutput.appendChild(div);
+  }
+  terminalOutput.scrollTop = terminalOutput.scrollHeight;
+};
+
 const appendMessage = (msg) => {
   const div = document.createElement("div");
 
@@ -629,6 +647,39 @@ terminalInput.addEventListener("keypress", async (e) => {
         } else {
           systemStatusBar.innerText = `[SYSTEM] Could not find blocked user ${name}`;
         }
+      }
+      return;
+    } else if (content === "/who") {
+      try {
+        const res = await fetch("/api/peers");
+        if (!res.ok) {
+          systemStatusBar.innerText = "[SYSTEM] Failed to fetch peer list";
+          return;
+        }
+
+        const data = await res.json();
+        const peers = Array.isArray(data.peers) ? data.peers : [];
+        const mappedPeers = peers.map((peer) => {
+          if (peer.id && peer.screenname) {
+            nameToId.set(peer.screenname, peer.id);
+          }
+          const shortId = peer.id ? peer.id.slice(-8) : "unknown";
+          return `${peer.screenname || "Unknown"} (...${shortId})`;
+        });
+
+        const visiblePeers = mappedPeers.slice(0, 20);
+        const outputLines = [
+          `Active users: ${mappedPeers.length}`,
+          ...visiblePeers,
+        ];
+        if (mappedPeers.length > visiblePeers.length) {
+          outputLines.push(`...and ${mappedPeers.length - visiblePeers.length} more`);
+        }
+
+        appendSystemLines(outputLines);
+        systemStatusBar.innerText = `[SYSTEM] Listed ${mappedPeers.length} active users`;
+      } catch (err) {
+        systemStatusBar.innerText = "[SYSTEM] Failed to fetch peer list";
       }
       return;
     } else if (content.startsWith("/whisper ")) {
@@ -840,6 +891,7 @@ const initialCount = parseInt(countEl.dataset.initialCount) || 0;
 countEl.innerText = initialCount;
 countEl.classList.add("loaded");
 updateParticles(initialCount);
+refreshThemeColors();
 animate();
 
 const bandwidthHistory = { timestamps: [], bytesIn: [], bytesOut: [] };
@@ -1040,6 +1092,7 @@ function cycleTheme() {
     if (oldLink) oldLink.remove();
     newLink.id = "theme-css";
     localStorage.setItem("hypermind-theme", newTheme);
+    refreshThemeColors();
     btn.disabled = false;
     btn.style.opacity = "";
     showThemeNotification(newTheme);

@@ -48,6 +48,7 @@ const setupRoutes = (
     peerManager,
     swarm,
     diagnostics,
+    sseManager,
   };
 
   const chatDeps = {

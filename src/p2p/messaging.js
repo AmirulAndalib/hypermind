@@ -7,7 +7,6 @@ const crypto = require("crypto");
 const {
   MAX_RELAY_HOPS,
   ENABLE_CHAT,
-  CHAT_RATE_LIMIT,
 } = require("../config/constants");
 const { BloomFilterManager } = require("../state/bloom");
 const { generateScreenname } = require("../utils/name-generator");

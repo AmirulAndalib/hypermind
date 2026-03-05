@@ -2,13 +2,11 @@ const Hyperswarm = require("hyperswarm");
 const { signMessage } = require("../core/security");
 const {
   TOPIC,
-  TOPIC_NAME,
   HEARTBEAT_INTERVAL,
   MAX_CONNECTIONS,
   CONNECTION_ROTATION_INTERVAL,
   ENABLE_CHAT,
 } = require("../config/constants");
-const { generateScreenname } = require("../utils/name-generator");
 
 class SwarmManager {
   constructor(
@@ -122,6 +120,7 @@ class SwarmManager {
         this.broadcastFn();
       }
     }, HEARTBEAT_INTERVAL);
+    this.heartbeatInterval.unref();
   }
 
   startRotation() {
@@ -148,9 +147,10 @@ class SwarmManager {
         oldest.destroy();
       }
     }, CONNECTION_ROTATION_INTERVAL);
+    this.rotationInterval.unref();
   }
 
-  shutdown() {
+  async shutdown() {
     const sig = signMessage(
       `type:LEAVE:${this.identity.id}`,
       this.identity.privateKey
@@ -176,10 +176,8 @@ class SwarmManager {
     if (this.rotationInterval) {
       clearInterval(this.rotationInterval);
     }
-
-    setTimeout(() => {
-      process.exit(0);
-    }, 500);
+    this.messageHandler.bloomFilter.stop();
+    await this.swarm.destroy();
   }
 
   getSwarm() {

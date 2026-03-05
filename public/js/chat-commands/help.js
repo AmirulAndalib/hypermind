@@ -40,6 +40,7 @@ export const helpCommand = {
       },
       { cmd: "/block &lt;user&gt;", desc: "Block messages from a user" },
       { cmd: "/unblock &lt;user&gt;", desc: "Unblock a user" },
+      { cmd: "/who", desc: "List active users in the swarm" },
       {
         cmd: "/local &lt;msg&gt;",
         desc: "Send message to direct peers only (Global by default)",

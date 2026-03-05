@@ -25,7 +25,15 @@ class SSEManager {
     broadcast(data) {
         const message = JSON.stringify(data);
         for (const client of this.clients) {
-            client.write(`data: ${message}\n\n`);
+            if (client.writableEnded || client.destroyed) {
+                this.clients.delete(client);
+                continue;
+            }
+            try {
+                client.write(`data: ${message}\n\n`);
+            } catch (e) {
+                this.clients.delete(client);
+            }
         }
     }
 

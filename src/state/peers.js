@@ -92,6 +92,19 @@ class PeerManager {
         }
         return peers;
     }
+
+    getPeerList() {
+        const peers = [];
+        for (const [id, data] of this.seenPeers.entries()) {
+            peers.push({
+                id,
+                seq: data.seq,
+                lastSeen: data.lastSeen,
+                ip: data.ip || null,
+            });
+        }
+        return peers;
+    }
 }
 
 module.exports = { PeerManager };

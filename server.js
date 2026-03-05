@@ -65,16 +65,24 @@ const main = async () => {
     () => swarmManager.getSwarm().connections.size
   );
 
-  setInterval(() => {
+  const diagnosticsTimer = setInterval(() => {
     broadcastUpdate();
   }, DIAGNOSTICS_INTERVAL);
+  diagnosticsTimer.unref();
 
   const app = createServer(identity, peerManager, swarmManager, sseManager, diagnostics);
-  startServer(app, identity);
+  const webServer = startServer(app, identity);
 
-  const handleShutdown = () => {
+  let shuttingDown = false;
+  const handleShutdown = async () => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    clearInterval(diagnosticsTimer);
     diagnostics.stopLogging();
-    swarmManager.shutdown();
+    await swarmManager.shutdown();
+    webServer.close(() => {
+      process.exit(0);
+    });
   };
 
   process.on("SIGINT", handleShutdown);

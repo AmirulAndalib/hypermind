@@ -72,6 +72,10 @@ const test = (method, path, body = null, validate, timeout = 5000) => {
             const json = JSON.parse(data);
             return json.count !== undefined && json.id && json.screenname && json.diagnostics;
         }),
+        test("GET", "/api/peers", null, (data) => {
+            const json = JSON.parse(data);
+            return typeof json.count === "number" && Array.isArray(json.peers);
+        }),
         test("GET", "/api/github/latest-release", null, (data) => {
             const json = JSON.parse(data);
             return json.tag_name && json.html_url;

@@ -11,10 +11,11 @@ const createServer = (identity, peerManager, swarm, sseManager, diagnostics) => 
 }
 
 const startServer = (app, identity) => {
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
         console.log(`Hypermind Node running on port ${PORT}`);
         console.log(`ID: ${identity.id}`);
     });
+    return server;
 }
 
 module.exports = { createServer, startServer };
