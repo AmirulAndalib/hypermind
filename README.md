@@ -13,6 +13,16 @@ It solves the critical infrastructure challenge of knowing exactly how many othe
 
 ---
 
+## Special Announcement
+
+Apparently the counter was not enough.
+
+[Hypermind-Swarm](https://github.com/lklynet/hypermind-swarm) is a fork of Hypermind that takes the same P2P bones and turns them into a Twitter-style social platform for decentralized, ephemeral conversations.
+
+It is built by the same creator, still allergic to central servers, still running on the swarm, and now aimed at letting people post into the void without algorithms, permanent digital footprints, or anyone pretending this needed to exist.
+
+---
+
 ## What is this?
 
 You need a service that:
